@@ -1,54 +1,67 @@
 ﻿using Microsoft.Extensions.Configuration;
-
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace targilDotNet
 {
     public class CountKeyPress
     {
 
-        private readonly IConfiguration config;
+        private static readonly Dictionary<char, int> _KeyDictionery = new Dictionary<char, int>();
+        private KeyPressContext _context { get; set; }
+        private readonly int _duration;
 
-        private static Dictionary<char, int> _KeyDictionery = new Dictionary<char, int>();
-
-
-        public CountKeyPress(IConfiguration config)
+        public CountKeyPress(IConfiguration config, KeyPressContext context)
         {
-            this.config = config;
-            var duration = config.GetValue<int>("Duration");
-            CountPress(duration);
+            _context = context;
+            // config.GetConnectionString;
+            _duration = config.GetValue<int>("DurationBySeconds");
+           // CountPress(duration);
+
         }
-        public static void CountPress(int duration)
+
+
+        public void CountPress()
         {
+
+           Stopwatch timer = new Stopwatch();
+            timer.Start();
             var thisTime = DateTime.Now;
-          while(DateTime.Now <= thisTime.AddMinutes( duration))
+          //   while (DateTime.Now <= thisTime.AddSeconds(_duration))
+           while (timer.Elapsed.TotalSeconds < _duration)
             {
-                var s = Console.Read();
-                char c = Convert.ToChar(s);
+               var input = Console.ReadKey();
+                char inputChar = input.KeyChar;
+                if (input.Key == ConsoleKey.Escape)
+                    break;
 
-                if (_KeyDictionery.ContainsKey(c))
-                    _KeyDictionery[c]++;
+                if (_KeyDictionery.ContainsKey(inputChar))
+                    _KeyDictionery[inputChar]++;
                 else
-                    _KeyDictionery.Add(c, 1);
+                    _KeyDictionery.Add(inputChar, 1);
             }
+           // timer.Stop();
 
-            insertToDb(thisTime);
+            InsertToDb(thisTime);
+
         }
-        private static void insertToDb(DateTime thisTime)
+        private void InsertToDb(DateTime thisTime)
         {
-            using (var context = new KeyPressContext())
+            // using (var context = new KeyPressContext())
             {
-                foreach (KeyValuePair<char, int> entry in targilDotNet.CountKeyPress._KeyDictionery)
+                foreach (KeyValuePair<char, int> entry in _KeyDictionery)
                 {
-                    var Key = new Key
+                    var Key = new Key()
                     {
-                        Count = entry.Value,
-                        KeyName = entry.Key,
-                        startTimeastamp = thisTime
+                        _count = entry.Value,
+                        _keyName = entry.Key,
+                        _startTimeastamp = thisTime
                     };
 
-                    context.Add(Key);
+                    _context.Add(Key);
                 };
 
-                context.SaveChanges();
+                
+                _context.SaveChanges();
             }
 
         }
