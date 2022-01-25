@@ -10,7 +10,7 @@ using targilDotNet;
 
 namespace targilDotNet.Migrations
 {
-    [DbContext(typeof(KeyPressContext))]
+    [DbContext(typeof(IKeyPressContext))]
     partial class KeyPressContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

@@ -11,7 +11,7 @@ using targilDotNet;
 
 namespace targilDotNet.Migrations
 {
-    [DbContext(typeof(KeyPressContext))]
+    [DbContext(typeof(IKeyPressContext))]
     [Migration("20220119115428_t")]
     partial class t
     {

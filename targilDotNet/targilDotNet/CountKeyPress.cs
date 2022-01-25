@@ -3,19 +3,19 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace targilDotNet
 {
-    public class CountKeyPress
+    public class CountKeyPress : ICountKeyPress
     {
 
-        private static readonly Dictionary<char, int> _KeyDictionery = new Dictionary<char, int>();
-        private KeyPressContext _context { get; set; }
+        private static readonly Dictionary<char, int> _KeyDictionery = new();
+        private KeyPressContext Context { get; set; }
         private readonly int _duration;
 
         public CountKeyPress(IConfiguration config, KeyPressContext context)
         {
-            _context = context;
+            Context = context;
             // config.GetConnectionString;
             _duration = config.GetValue<int>("DurationBySeconds");
-           // CountPress(duration);
+            // CountPress(duration);
 
         }
 
@@ -23,13 +23,13 @@ namespace targilDotNet
         public void CountPress()
         {
 
-           Stopwatch timer = new Stopwatch();
+            Stopwatch timer = new();
             timer.Start();
             var thisTime = DateTime.Now;
-          //   while (DateTime.Now <= thisTime.AddSeconds(_duration))
-           while (timer.Elapsed.TotalSeconds < _duration)
+            //   while (DateTime.Now <= thisTime.AddSeconds(_duration))
+            while (timer.Elapsed.TotalSeconds < _duration)
             {
-               var input = Console.ReadKey();
+                var input = Console.ReadKey();
                 char inputChar = input.KeyChar;
                 if (input.Key == ConsoleKey.Escape)
                     break;
@@ -39,7 +39,7 @@ namespace targilDotNet
                 else
                     _KeyDictionery.Add(inputChar, 1);
             }
-           // timer.Stop();
+            // timer.Stop();
 
             InsertToDb(thisTime);
 
@@ -57,11 +57,11 @@ namespace targilDotNet
                         _startTimeastamp = thisTime
                     };
 
-                    _context.Add(Key);
+                    Context.Add(Key);
                 };
 
-                
-                _context.SaveChanges();
+
+                Context.SaveChanges();
             }
 
         }
